@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 // MUI
 import { makeStyles } from "@material-ui/core";
@@ -13,6 +13,9 @@ import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import SearchIcon from "@material-ui/icons/Search";
 
+// API
+import axios from "../../shared/APIServer";
+
 const useStyles = makeStyles({
   input: {
     marginTop: 20,
@@ -24,6 +27,18 @@ const useStyles = makeStyles({
     marginBottom: 20,
     border: 1,
     m: 1,
+  },
+  title: {
+    marginTop: 5,
+    marginBottom: 5,
+  },
+  keywords: {
+    marginTop: 5,
+    marginBottom: 5,
+  },
+  description: {
+    marginTop: 8,
+    marginBottom: 5,
   },
 });
 
@@ -65,19 +80,23 @@ function SearchNavigation() {
   );
 }
 
-function InformationSkeleton() {
+function InformationSkeleton({ id, title, rawKeywords, description }) {
   const classes = useStyles();
 
   return (
     <Card className={classes.information}>
       <CardContent>
-        <Typography variant="h6" color="primary">
-          Skeleton Title
+        <Typography className={classes.title} variant="h6" color="primary">
+          {title}
         </Typography>
 
-        <Typography variant="subtitle2">Skeleton Keywords</Typography>
+        <Typography className={classes.keywords} variant="subtitle2">
+          {rawKeywords.map((item, index) => {
+            return <span key={index}>{item} </span>;
+          })}
+        </Typography>
 
-        <Typography variant="body1">
+        <Typography className={classes.description} variant="body1">
           Donec non tellus diam. Phasellus sit amet gravida magna. Sed vulputate
           velit et convallis aliquet. Fusce orci eros, dignissim id nisi eu,
           hendrerit aliquet velit. In ut porta enim. Proin neque lectus, pretium
@@ -90,7 +109,18 @@ function InformationSkeleton() {
 }
 
 function Read() {
-  const classes = useStyles();
+  const [information, setInformation] = useState([]);
+
+  useEffect(() => {
+    async function fetchInformation() {
+      const response = await axios.get("/information");
+      const data = response.data;
+
+      setInformation(data);
+    }
+
+    fetchInformation();
+  }, []);
 
   return (
     <Box component="div" mt={5} mb={8}>
@@ -109,9 +139,15 @@ function Read() {
         </Fab>
 
         <Box mt={4}>
-          <InformationSkeleton />
-          <InformationSkeleton />
-          <InformationSkeleton />
+          {information.map((item) => (
+            <InformationSkeleton
+              key={item._id}
+              id={item._id}
+              title={item.title}
+              rawKeywords={item.keywords}
+              description={item.description}
+            />
+          ))}
         </Box>
 
         <SearchNavigation />
