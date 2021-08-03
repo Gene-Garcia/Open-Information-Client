@@ -19,11 +19,7 @@ function InformationSkeleton({ classes, id, title, rawKeywords, description }) {
         </Typography>
 
         <Typography className={classes.description} variant="body1">
-          Donec non tellus diam. Phasellus sit amet gravida magna. Sed vulputate
-          velit et convallis aliquet. Fusce orci eros, dignissim id nisi eu,
-          hendrerit aliquet velit. In ut porta enim. Proin neque lectus, pretium
-          a egestas ut, bibendum nec nibh. Maecenas elementum risus turpis.
-          Quisque pharetra purus eu placerat ultricies.
+          {description}
         </Typography>
       </CardContent>
     </Card>
