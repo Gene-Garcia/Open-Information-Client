@@ -8,6 +8,7 @@ import { createTheme, ThemeProvider } from "@material-ui/core";
 
 // Pages
 import Read from "../screens/Read";
+import Share from "../screens/Share";
 
 // Custom Theme
 const theme = createTheme({
@@ -22,12 +23,16 @@ function App() {
     <ThemeProvider theme={theme}>
       <Router>
         <Switch>
-          <Route path="/">
+          <Route path="/" exact>
+            <Share />
+          </Route>
+
+          <Route path="/read" exact>
             <Read />
           </Route>
 
-          <Route path="/read">
-            <Read />
+          <Route path="/share" exact>
+            <Share />
           </Route>
         </Switch>
       </Router>
