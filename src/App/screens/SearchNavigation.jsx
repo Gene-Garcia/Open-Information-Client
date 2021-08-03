@@ -42,7 +42,6 @@ function SearchNavigation({ classes, onSearch }) {
           className={classes.input}
           label="Title"
           variant="outlined"
-          required
           fullWidth
         />
 

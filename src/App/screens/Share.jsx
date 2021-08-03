@@ -12,9 +12,7 @@ import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 
 const useStyles = makeStyles({
-  formRoot: {
-    width: "70%",
-  },
+  formRoot: {},
   input: {
     marginTop: 20,
     marginBottom: 20,
