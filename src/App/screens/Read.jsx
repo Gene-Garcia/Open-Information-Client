@@ -40,6 +40,7 @@ const useStyles = makeStyles({
 });
 
 function Read() {
+  const [loadingInfos, setLoadingInfos]
   const [information, setInformation] = useState([]);
   const [searchValue, setSearchValue] = useState({ title: "", keyword: "" });
 
