@@ -41,17 +41,40 @@ const useStyles = makeStyles({
 
 function Read() {
   const [information, setInformation] = useState([]);
+  const [searchValue, setSearchValue] = useState({ title: "", keyword: "" });
 
   useEffect(() => {
     async function fetchInformation() {
-      const response = await axios.get("/information");
-      const data = response.data;
+      let path = "/information";
+
+      //build path
+      path =
+        searchValue.title !== ""
+          ? "/information/title/" + searchValue.title
+          : path;
+      path =
+        searchValue.keyword !== ""
+          ? path + "/keyword/" + searchValue.keyword
+          : path;
+
+      const response = await axios.get(path);
+
+      //convert to array if not yet arry
+      const data = Array.isArray(response.data)
+        ? response.data
+        : [response.data];
 
       setInformation(data);
     }
 
     fetchInformation();
-  }, []);
+  }, [searchValue]);
+
+  function onSearch(title, keyword) {
+    console.log(title + " " + keyword);
+
+    setSearchValue({ title: title, keyword: keyword });
+  }
 
   const classes = useStyles();
 
@@ -84,7 +107,7 @@ function Read() {
           ))}
         </Box>
 
-        <SearchNavigation classes={classes} />
+        <SearchNavigation classes={classes} onSearch={onSearch} />
       </Container>
     </Box>
   );

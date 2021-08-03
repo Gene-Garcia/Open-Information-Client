@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
@@ -6,7 +6,27 @@ import TextField from "@material-ui/core/TextField";
 import SearchIcon from "@material-ui/icons/Search";
 import Button from "@material-ui/core/Button";
 
-function SearchNavigation({ classes }) {
+function SearchNavigation({ classes, onSearch }) {
+  const [title, setTitle] = useState("");
+  const [keyword, setKeyword] = useState("");
+
+  function onTitleChange(e) {
+    const v = e.target.value;
+    setTitle(v);
+  }
+
+  function onKeywordChange(e) {
+    const v = e.target.value;
+    setKeyword(v);
+  }
+
+  function onSearchBtn(e) {
+    onSearch(title, keyword);
+
+    setTitle("");
+    setKeyword("");
+  }
+
   return (
     <Box component="div" mt={5}>
       <Typography variant="h6" component="p">
@@ -15,6 +35,8 @@ function SearchNavigation({ classes }) {
 
       <form>
         <TextField
+          onChange={onTitleChange}
+          value={title}
           className={classes.input}
           label="Title"
           variant="outlined"
@@ -23,6 +45,8 @@ function SearchNavigation({ classes }) {
         />
 
         <TextField
+          onChange={onKeywordChange}
+          value={keyword}
           className={classes.input}
           label="Keyword"
           variant="outlined"
@@ -30,6 +54,7 @@ function SearchNavigation({ classes }) {
         />
 
         <Button
+          onClick={onSearchBtn}
           startIcon={<SearchIcon />}
           variant="contained"
           size="medium"
