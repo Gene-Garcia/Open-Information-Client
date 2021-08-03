@@ -9,6 +9,8 @@ import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
 import Fab from "@material-ui/core/Fab";
 import ChromeReaderModeOutlinedIcon from "@material-ui/icons/ChromeReaderModeOutlined";
+import Fade from "@material-ui/core/Fade";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 // API
 import axios from "../../shared/APIServer";
@@ -37,10 +39,14 @@ const useStyles = makeStyles({
     marginTop: 8,
     marginBottom: 5,
   },
+  loadingRoot: {
+    display: "flex",
+    justifyContent: "center",
+  },
 });
 
 function Read() {
-  const [loadingInfos, setLoadingInfos]
+  const [loadingInfos, setLoadingInfos] = useState(true);
   const [information, setInformation] = useState([]);
   const [searchValue, setSearchValue] = useState({ title: "", keyword: "" });
 
@@ -65,6 +71,7 @@ function Read() {
         ? response.data
         : [response.data];
 
+      setLoadingInfos(false); // triggered after await
       setInformation(data);
     }
 
@@ -96,19 +103,28 @@ function Read() {
         </Fab>
 
         <Box mt={4}>
-          {information.map((item) => (
-            <InformationSkeleton
-              classes={classes}
-              key={item._id}
-              id={item._id}
-              title={item.title}
-              rawKeywords={item.keywords}
-              description={item.description}
-            />
-          ))}
+          <Box>
+            {information.map((item) => (
+              <InformationSkeleton
+                classes={classes}
+                key={item._id}
+                id={item._id}
+                title={item.title}
+                rawKeywords={item.keywords}
+                description={item.description}
+              />
+            ))}
+          </Box>
+          <Box className={classes.loadingRoot}>
+            <Fade in={loadingInfos} unmountOnExit>
+              <CircularProgress color="primary" />
+            </Fade>
+          </Box>
         </Box>
 
-        <SearchNavigation classes={classes} onSearch={onSearch} />
+        <Box mt={4}>
+          <SearchNavigation classes={classes} onSearch={onSearch} />
+        </Box>
       </Container>
     </Box>
   );

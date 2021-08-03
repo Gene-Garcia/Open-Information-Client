@@ -21,14 +21,16 @@ function SearchNavigation({ classes, onSearch }) {
   }
 
   function onSearchBtn(e) {
-    onSearch(title, keyword);
+    e.preventDefault();
 
+    onSearch(title, keyword);
+    console.log(e);
     setTitle("");
     setKeyword("");
   }
 
   return (
-    <Box component="div" mt={5}>
+    <Box component="div">
       <Typography variant="h6" component="p">
         search an open information
       </Typography>
@@ -54,6 +56,7 @@ function SearchNavigation({ classes, onSearch }) {
         />
 
         <Button
+          role="button"
           onClick={onSearchBtn}
           startIcon={<SearchIcon />}
           variant="contained"
