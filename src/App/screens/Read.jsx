@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, useCallback } from "react";
+import React, { useEffect, useState, useContext } from "react";
 
 // My components
 import SearchNavigation from "./SearchNavigation";
@@ -17,9 +17,17 @@ import Fab from "@material-ui/core/Fab";
 import ChromeReaderModeOutlinedIcon from "@material-ui/icons/ChromeReaderModeOutlined";
 import Fade from "@material-ui/core/Fade";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import Collapse from "@material-ui/core/Collapse";
+import Alert from "@material-ui/lab/Alert";
+import AlertTitle from "@material-ui/lab/AlertTitle";
+import IconButton from "@material-ui/core/IconButton";
+import CloseIcon from "@material-ui/icons/Close";
 
 // API
 import axios from "../../shared/APIServer";
+
+// Helpers
+import { isValid } from "../../shared/ValueHelper";
 
 // Styles
 const useStyles = makeStyles({
@@ -57,42 +65,41 @@ const useStyles = makeStyles({
 });
 
 function Read() {
-  const [loadingInfos, setLoadingInfos] = useState(true);
   const [searchValue, setSearchValue] = useState({ title: "", keyword: "" });
+  const [loadingInfos, setLoadingInfos] = useState(true);
+  const [error, setError] = useState(false);
 
   // Use of context and reducer for Information data
   const { information, loadInformation } = useContext(InformationContext);
-  const stableLoadInformation = useCallback(
-    (data) => loadInformation(data),
-    [loadInformation]
-  );
   useEffect(() => {
-    async function fetchInformation() {
-      let path = "/information";
+    async function fetchInformation(path) {
+      const response = await axios
+        .get(path)
+        .then((res) => {
+          //convert to array if not yet arry
+          const data = Array.isArray(res.data) ? res.data : [res.data];
 
-      //build path
-      path =
-        searchValue.title !== ""
-          ? "/information/title/" + searchValue.title
-          : path;
-      path =
-        searchValue.keyword !== ""
-          ? path + "/keyword/" + searchValue.keyword
-          : path;
-
-      const response = await axios.get(path);
-
-      //convert to array if not yet arry
-      const data = Array.isArray(response.data)
-        ? response.data
-        : [response.data];
+          loadInformation(data);
+          setError(false);
+        })
+        .catch((err) => {
+          console.log(err.response);
+          setError(true);
+        });
 
       setLoadingInfos(false); // triggered after await
-      stableLoadInformation(data);
     }
 
-    fetchInformation();
-  }, [searchValue, stableLoadInformation]);
+    //build path
+    let path = "/information";
+    path += isValid(searchValue.title) ? `/title/${searchValue.title}` : "";
+    path += isValid(searchValue.keyword)
+      ? `/keyword/${searchValue.keyword}`
+      : "";
+
+    setLoadingInfos(true);
+    fetchInformation(path);
+  }, [searchValue]);
 
   // Event listeners
   function onSearch(title, keyword) {
@@ -119,6 +126,28 @@ function Read() {
         <Fab size="small">
           <ChromeReaderModeOutlinedIcon color="primary" />
         </Fab>
+
+        <Box mt={4}>
+          <Collapse in={error}>
+            <Alert
+              severity="error"
+              action={
+                <IconButton
+                  color="inherit"
+                  size="small"
+                  onClick={() => {
+                    setError(false);
+                  }}
+                >
+                  <CloseIcon fontSize="inherit" />
+                </IconButton>
+              }
+            >
+              <AlertTitle>Error</AlertTitle>
+              Open information can not be found!
+            </Alert>
+          </Collapse>
+        </Box>
 
         <div className={classes.gridRoot}>
           <Grid container spacing={5}>
