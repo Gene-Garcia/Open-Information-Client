@@ -1,12 +1,12 @@
 import React, { createContext, useReducer } from "react";
 
+// Reducer
+import InformationReducer from "./InformationReducer";
+
 // Initial
 const initialState = {
   information: [],
 };
-
-// Reducer
-import InformationReducer from "./InformationReducer";
 
 // Context
 const InformationContext = createContext();
@@ -27,7 +27,7 @@ function InformationProvider({ children }) {
     <InformationContext.Provider
       value={{
         information: state.information,
-        load: loadInformation,
+        loadInformation,
       }}
     >
       {children}

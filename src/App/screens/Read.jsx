@@ -1,6 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext, useCallback } from "react";
+
+// My components
 import SearchNavigation from "./SearchNavigation";
 import InformationSkeleton from "./InformationSkeleton";
+
+// Context
+import InformationContext from "../../context/Information/InformationContext";
 
 // MUI
 import { makeStyles } from "@material-ui/core";
@@ -16,6 +21,7 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 // API
 import axios from "../../shared/APIServer";
 
+// Styles
 const useStyles = makeStyles({
   input: {
     marginTop: 20,
@@ -52,9 +58,14 @@ const useStyles = makeStyles({
 
 function Read() {
   const [loadingInfos, setLoadingInfos] = useState(true);
-  const [information, setInformation] = useState([]);
   const [searchValue, setSearchValue] = useState({ title: "", keyword: "" });
 
+  // Use of context and reducer for Information data
+  const { information, loadInformation } = useContext(InformationContext);
+  const stableLoadInformation = useCallback(
+    (data) => loadInformation(data),
+    [loadInformation]
+  );
   useEffect(() => {
     async function fetchInformation() {
       let path = "/information";
@@ -77,18 +88,20 @@ function Read() {
         : [response.data];
 
       setLoadingInfos(false); // triggered after await
-      setInformation(data);
+      stableLoadInformation(data);
     }
 
     fetchInformation();
-  }, [searchValue]);
+  }, [searchValue, stableLoadInformation]);
 
+  // Event listeners
   function onSearch(title, keyword) {
     console.log(title + " " + keyword);
 
     setSearchValue({ title: title, keyword: keyword });
   }
 
+  // stylings
   const classes = useStyles();
 
   return (

@@ -3,6 +3,9 @@ import React from "react";
 // route package
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
+// Context
+import { InformationProvider } from "../../context/Information/InformationContext";
+
 // MUI components
 import { createTheme, ThemeProvider } from "@material-ui/core";
 
@@ -28,7 +31,9 @@ function App() {
           </Route>
 
           <Route path="/read" exact>
-            <Read />
+            <InformationProvider>
+              <Read />
+            </InformationProvider>
           </Route>
 
           <Route path="/share" exact>
