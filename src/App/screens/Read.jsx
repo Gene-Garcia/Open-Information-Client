@@ -26,9 +26,6 @@ import CloseIcon from "@material-ui/icons/Close";
 // API
 import axios from "../../shared/APIServer";
 
-// Helpers
-import { isValid } from "../../shared/ValueHelper";
-
 // Styles
 const useStyles = makeStyles({
   input: {
@@ -65,7 +62,6 @@ const useStyles = makeStyles({
 });
 
 function Read() {
-  const [searchValue, setSearchValue] = useState({ title: "", keyword: "" });
   const [loadingInfos, setLoadingInfos] = useState(true);
   const [error, setError] = useState(false);
 
@@ -74,38 +70,32 @@ function Read() {
   useEffect(() => {
     async function fetchInformation(path) {
       const response = await axios
-        .get(path)
+        .get("/information")
         .then((res) => {
           //convert to array if not yet arry
           const data = Array.isArray(res.data) ? res.data : [res.data];
 
           loadInformation(data);
           setError(false);
+          setLoadingInfos(false);
         })
         .catch((err) => {
           console.log(err.response);
           setError(true);
         });
-
-      setLoadingInfos(false); // triggered after await
     }
 
-    //build path
-    let path = "/information";
-    path += isValid(searchValue.title) ? `/title/${searchValue.title}` : "";
-    path += isValid(searchValue.keyword)
-      ? `/keyword/${searchValue.keyword}`
-      : "";
-
     setLoadingInfos(true);
-    fetchInformation(path);
-  }, [searchValue]);
+    fetchInformation();
+  }, []);
 
   // Event listeners
-  function onSearch(title, keyword) {
-    console.log(title + " " + keyword);
+  function modifyLoading(b) {
+    setLoadingInfos(b);
+  }
 
-    setSearchValue({ title: title, keyword: keyword });
+  function modifyError(b) {
+    setError(b);
   }
 
   // stylings
@@ -175,7 +165,11 @@ function Read() {
             </Grid>
 
             <Grid item xs={12} sm={5} md={4} lg={3} xl={3}>
-              <SearchNavigation classes={classes} onSearch={onSearch} />
+              <SearchNavigation
+                classes={classes}
+                modifyLoading={modifyLoading}
+                modifyError={modifyError}
+              />
             </Grid>
           </Grid>
         </div>
