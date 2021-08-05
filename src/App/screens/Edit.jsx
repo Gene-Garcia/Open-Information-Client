@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
+
+import InformationContext from "../../context/Information/InformationContext";
 
 // MUI
 import { makeStyles } from "@material-ui/core";
@@ -30,11 +32,9 @@ const useStyles = makeStyles({
   },
 });
 
-function Edit({
-  match: {
-    params: { pId, pTitle },
-  },
-}) {
+function Edit(p) {
+  const pId = p.match.params.id;
+
   const [data, setData] = useState({
     title: "",
     keywords: "",
@@ -48,6 +48,19 @@ function Edit({
   });
 
   // Information API data
+  const { information } = useContext(InformationContext);
+  useEffect(() => {
+    // find the information
+    const curr = information.find((info) => {
+      return info._id === pId;
+    });
+    // convert arr to str
+    const strKeywords = setData({
+      title: curr.title,
+      keywords: curr.keywords.join(", "),
+      description: curr.description,
+    });
+  }, []);
 
   // Styles
   const classes = useStyles();

@@ -33,23 +33,27 @@ function App() {
         <Navbar />
 
         <Box style={{ marginTop: "100px" }}>
-          <Switch>
-            <Route path="/" exact>
-              <Share />
-            </Route>
+          <InformationProvider>
+            <Switch>
+              <Route path="/" exact>
+                <Share />
+              </Route>
 
-            <Route path="/read" exact>
-              <InformationProvider>
+              <Route path="/read" exact>
                 <Read />
-              </InformationProvider>
-            </Route>
+              </Route>
 
-            <Route path="/share" exact>
-              <Share />
-            </Route>
+              <Route path="/share" exact>
+                <Share />
+              </Route>
 
-            <Route path="/edit/:id/title/:title" exact component={Edit}></Route>
-          </Switch>
+              <Route
+                path="/edit/:id/title/:title"
+                exact
+                component={Edit}
+              ></Route>
+            </Switch>
+          </InformationProvider>
         </Box>
       </Router>
     </ThemeProvider>
