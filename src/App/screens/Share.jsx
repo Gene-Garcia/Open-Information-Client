@@ -1,8 +1,5 @@
 import React, { useState } from "react";
 
-// router
-import { Redirect } from "react-router-dom";
-
 // MUI
 import { makeStyles } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";

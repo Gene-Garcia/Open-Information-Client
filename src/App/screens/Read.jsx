@@ -71,7 +71,7 @@ function Read() {
   } = useContext(InformationContext);
   useEffect(() => {
     async function fetchInformation(path) {
-      const response = await axios
+      await axios
         .get("/information")
         .then((res) => {
           //convert to array if not yet arry

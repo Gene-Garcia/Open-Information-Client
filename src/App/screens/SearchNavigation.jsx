@@ -18,10 +18,9 @@ import { isValid } from "../../shared/ValueHelper";
 
 function SearchNavigation({ classes }) {
   const {
-    information,
     loadInformation,
-    loadingState: [loading, setLoading],
-    errorState: [error, setError],
+    loadingState: [, setLoading],
+    errorState: [, setError],
   } = useContext(InformationContext);
 
   // States
