@@ -62,19 +62,6 @@ function Share() {
     });
   }
 
-  const handleErrors = async () => {
-    for (const [k, v] of Object.entries(data)) {
-      setErrs((prev) => {
-        return {
-          ...prev,
-          [k]: v === "",
-        };
-      });
-    }
-
-    return; //important
-  };
-
   function clearFields() {
     setData({
       title: "",
@@ -83,19 +70,31 @@ function Share() {
     });
   }
 
-  function onPublish(e) {
-    e.preventDefault();
+  function handleErrors() {
+    for (const [k, v] of Object.entries(data)) {
+      setErrs((prev) => {
+        return {
+          ...prev,
+          [k]: v === "",
+        };
+      });
+    }
+  }
 
+  function onPublish(e) {
     // check for empty fields
-    handleErrors().then(() => {
-      if (errs.title && errs.keywords && errs.description) {
-      } else {
-        axios.post("/information/", data).then((response) => {
-          clearFields();
-          alert("post success");
-        });
-      }
-    });
+    handleErrors();
+
+    if (data.title === "" || data.keywords === "" || data.description === "") {
+      alert("error");
+      console.log("err");
+    } else {
+      console.log("succ");
+      axios.post("/information/", data).then((response) => {
+        clearFields();
+        alert("post success");
+      });
+    }
   }
 
   return (

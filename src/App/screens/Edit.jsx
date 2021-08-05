@@ -84,7 +84,7 @@ function Edit(p) {
     });
   }
 
-  const handleErrors = async () => {
+  function handleErrors() {
     for (const [k, v] of Object.entries(data)) {
       setErrs((prev) => {
         return {
@@ -93,9 +93,7 @@ function Edit(p) {
         };
       });
     }
-
-    return; //important
-  };
+  }
 
   function clearFields() {
     setData({
@@ -106,18 +104,24 @@ function Edit(p) {
   }
 
   function onPublish(e) {
-    e.preventDefault();
-
     // check for empty fields
-    handleErrors().then(() => {
-      if (errs.title && errs.keywords && errs.description) {
-      } else {
-        // axios.post("/information/", data).then((response) => {
-        //   clearFields();
-        //   alert("post success");
-        // });
-      }
-    });
+    handleErrors();
+
+    if (data.title === "" || data.keywords === "" || data.description === "") {
+      alert("error");
+      console.log("err");
+    } else {
+      axios
+        .patch(`/information/${pId}/title/${data.title}`, data)
+        .then((response) => {
+          clearFields();
+          alert("update success");
+        })
+        .catch((err) => {
+          console.log(err.response);
+          alert("update failure");
+        });
+    }
   }
 
   return (
