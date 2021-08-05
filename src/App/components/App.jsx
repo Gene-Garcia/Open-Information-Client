@@ -12,6 +12,7 @@ import Navbar from "./Navbar";
 // Pages
 import Read from "../screens/Read";
 import Share from "../screens/Share";
+import Edit from "../screens/Edit";
 
 // MUI components
 import { createTheme, ThemeProvider } from "@material-ui/core";
@@ -46,6 +47,8 @@ function App() {
             <Route path="/share" exact>
               <Share />
             </Route>
+
+            <Route path="/edit/:id/title/:title" exact component={Edit}></Route>
           </Switch>
         </Box>
       </Router>
