@@ -16,8 +16,13 @@ import Button from "@material-ui/core/Button";
 // Helpers
 import { isValid } from "../../shared/ValueHelper";
 
-function SearchNavigation({ classes, modifyLoading, modifyError }) {
-  const { information, loadInformation } = useContext(InformationContext);
+function SearchNavigation({ classes }) {
+  const {
+    information,
+    loadInformation,
+    loadingState: [loading, setLoading],
+    errorState: [error, setError],
+  } = useContext(InformationContext);
 
   // States
   const [title, setTitle] = useState("");
@@ -33,13 +38,14 @@ function SearchNavigation({ classes, modifyLoading, modifyError }) {
           const data = Array.isArray(res.data) ? res.data : [res.data];
 
           loadInformation(data);
-          modifyError(false);
-          modifyLoading(false);
+          setError(false);
         })
         .catch((err) => {
           console.log(err.response);
-          modifyError(true);
+          setError(true);
         });
+
+      setLoading(false);
     }
 
     // build path
@@ -49,7 +55,7 @@ function SearchNavigation({ classes, modifyLoading, modifyError }) {
       ? `/keyword/${searchValue.keyword}`
       : "";
 
-    modifyLoading(true);
+    setLoading(true);
     fetchInformation(path);
   }, [searchValue]);
 

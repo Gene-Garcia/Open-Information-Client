@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useContext } from "react";
 
 // My components
 import SearchNavigation from "./SearchNavigation";
@@ -62,11 +62,13 @@ const useStyles = makeStyles({
 });
 
 function Read() {
-  const [loadingInfos, setLoadingInfos] = useState(true);
-  const [error, setError] = useState(false);
-
   // Use of context and reducer for Information data
-  const { information, loadInformation } = useContext(InformationContext);
+  const {
+    information,
+    loadInformation,
+    loadingState: [loading, setLoading],
+    errorState: [error, setError],
+  } = useContext(InformationContext);
   useEffect(() => {
     async function fetchInformation(path) {
       const response = await axios
@@ -77,26 +79,18 @@ function Read() {
 
           loadInformation(data);
           setError(false);
-          setLoadingInfos(false);
         })
         .catch((err) => {
           console.log(err.response);
           setError(true);
         });
+
+      setLoading(false);
     }
 
-    setLoadingInfos(true);
+    setLoading(true);
     fetchInformation();
   }, []);
-
-  // Event listeners
-  function modifyLoading(b) {
-    setLoadingInfos(b);
-  }
-
-  function modifyError(b) {
-    setError(b);
-  }
 
   // stylings
   const classes = useStyles();
@@ -157,7 +151,7 @@ function Read() {
                 </Box>
 
                 <Box className={classes.loadingRoot}>
-                  <Fade in={loadingInfos} unmountOnExit>
+                  <Fade in={loading} unmountOnExit>
                     <CircularProgress color="primary" />
                   </Fade>
                 </Box>
@@ -165,11 +159,7 @@ function Read() {
             </Grid>
 
             <Grid item xs={12} sm={5} md={4} lg={3} xl={3}>
-              <SearchNavigation
-                classes={classes}
-                modifyLoading={modifyLoading}
-                modifyError={modifyError}
-              />
+              <SearchNavigation classes={classes} />
             </Grid>
           </Grid>
         </div>
