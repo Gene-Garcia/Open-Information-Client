@@ -6,12 +6,16 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 // Context
 import { InformationProvider } from "../../context/Information/InformationContext";
 
-// MUI components
-import { createTheme, ThemeProvider } from "@material-ui/core";
+// Nav
+import Navbar from "./Navbar";
 
 // Pages
 import Read from "../screens/Read";
 import Share from "../screens/Share";
+
+// MUI components
+import { createTheme, ThemeProvider } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
 
 // Custom Theme
 const theme = createTheme({
@@ -25,21 +29,25 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <Router>
-        <Switch>
-          <Route path="/" exact>
-            <Share />
-          </Route>
+        <Navbar />
 
-          <Route path="/read" exact>
-            <InformationProvider>
-              <Read />
-            </InformationProvider>
-          </Route>
+        <Box style={{ marginTop: "100px" }}>
+          <Switch>
+            <Route path="/" exact>
+              <Share />
+            </Route>
 
-          <Route path="/share" exact>
-            <Share />
-          </Route>
-        </Switch>
+            <Route path="/read" exact>
+              <InformationProvider>
+                <Read />
+              </InformationProvider>
+            </Route>
+
+            <Route path="/share" exact>
+              <Share />
+            </Route>
+          </Switch>
+        </Box>
       </Router>
     </ThemeProvider>
   );

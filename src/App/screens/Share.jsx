@@ -102,7 +102,7 @@ function Share() {
   }
 
   return (
-    <Box component="div" mt={5} mb={8}>
+    <Box component="div">
       <Container>
         <Typography
           variant="h3"
