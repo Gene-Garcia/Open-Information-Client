@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 // MUI
 import { makeStyles } from "@material-ui/core";
@@ -35,10 +35,12 @@ const useStyles = makeStyles({
 });
 
 function Edit({
+  history,
   match: {
     params: { id: pId },
   },
 }) {
+  // Submit handlers
   async function edit() {
     setOnRequest(true);
 
@@ -63,6 +65,7 @@ function Edit({
   function successEdit() {
     alert("YEAH successfully edited");
     setOnRequest(false);
+    history.push("/read");
   }
 
   function failedEdit(blame) {
