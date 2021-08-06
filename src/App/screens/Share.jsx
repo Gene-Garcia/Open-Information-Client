@@ -13,6 +13,8 @@ import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Alert from "@material-ui/lab/Alert";
 import Collapse from "@material-ui/core/Collapse";
+import IconButton from "@material-ui/core/IconButton";
+import CloseIcon from "@material-ui/icons/Close";
 
 // Axios
 import axios from "../../shared/APIServer";
@@ -145,7 +147,25 @@ function Share() {
 
         <Box mt={4}>
           <Collapse in={postStatus.isFinished}>
-            <Alert severity={postStatus.severity}>{postStatus.message}</Alert>
+            <Alert
+              action={
+                <IconButton
+                  color="inherit"
+                  size="small"
+                  onClick={() => {
+                    setPostStatus((prev) => ({
+                      ...prev,
+                      isFinished: false,
+                    }));
+                  }}
+                >
+                  <CloseIcon fontSize="inherit" />
+                </IconButton>
+              }
+              severity={postStatus.isFinished ? postStatus.severity : "error"}
+            >
+              {postStatus.message}
+            </Alert>
           </Collapse>
         </Box>
 

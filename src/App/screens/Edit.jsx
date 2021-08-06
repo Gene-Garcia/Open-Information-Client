@@ -8,9 +8,13 @@ import Typography from "@material-ui/core/Typography";
 import EditIcon from "@material-ui/icons/Edit";
 import Fab from "@material-ui/core/Fab";
 import TextField from "@material-ui/core/TextField";
-import { Button } from "@material-ui/core";
+import Button from "@material-ui/core/Button";
 import PublishIcon from "@material-ui/icons/Publish";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import Alert from "@material-ui/lab/Alert";
+import Collapse from "@material-ui/core/Collapse";
+import IconButton from "@material-ui/core/IconButton";
+import CloseIcon from "@material-ui/icons/Close";
 
 // Axios
 import axios from "../../shared/APIServer";
@@ -37,9 +41,15 @@ const useStyles = makeStyles({
 function Edit({
   history,
   match: {
-    params: { id: pId },
+    params: { id: pId, title: pTitle },
   },
 }) {
+  // Post status for error message
+  const [postStatus, setPostStatus] = useState({
+    isFinished: false,
+    severity: "",
+    message: "",
+  });
   // Submit handlers
   async function edit() {
     setOnRequest(true);
@@ -63,14 +73,20 @@ function Edit({
 
   // Success and failure on edit
   function successEdit() {
-    alert("YEAH successfully edited");
     setOnRequest(false);
     history.push("/read");
   }
 
   function failedEdit(blame) {
-    alert("OHHH something went wrong in " + blame + ". Try again");
     setOnRequest(false);
+    setPostStatus({
+      isFinished: true,
+      severity: "error",
+      message:
+        "Something went wrong in updating the information with the title '" +
+        pTitle +
+        "'. Please try again.",
+    });
   }
 
   function validate(fieldData, setErrors) {
@@ -161,7 +177,31 @@ function Edit({
           <EditIcon color="primary" />
         </Fab>
 
-        <Box mt={4} className={classes.formRoot}>
+        <Box mt={4}>
+          <Collapse in={postStatus.isFinished}>
+            <Alert
+              action={
+                <IconButton
+                  color="inherit"
+                  size="small"
+                  onClick={() => {
+                    setPostStatus((prev) => ({
+                      ...prev,
+                      isFinished: false,
+                    }));
+                  }}
+                >
+                  <CloseIcon fontSize="inherit" />
+                </IconButton>
+              }
+              severity={postStatus.isFinished ? postStatus.severity : "error"}
+            >
+              {postStatus.message}
+            </Alert>
+          </Collapse>
+        </Box>
+
+        <Box mt={2} className={classes.formRoot}>
           <TextField
             value={values.title}
             name="title"
