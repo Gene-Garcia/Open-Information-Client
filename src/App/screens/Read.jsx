@@ -70,7 +70,7 @@ function Read() {
     errorState: [error, setError],
   } = useContext(InformationContext);
   useEffect(() => {
-    async function fetchInformation(path) {
+    async function fetchInformation() {
       await axios
         .get("/information")
         .then((res) => {

@@ -68,6 +68,7 @@ function useForm(initialValues, initialErros, validate, submitFunction) {
   // return
   return {
     values,
+    setValues,
     errors,
     handleInput,
     validate, // but this might not be needed if we pass it as a callback

@@ -1,7 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
 
-import InformationContext from "../../context/Information/InformationContext";
-
 // MUI
 import { makeStyles } from "@material-ui/core";
 import Box from "@material-ui/core/Box";
@@ -12,9 +10,13 @@ import Fab from "@material-ui/core/Fab";
 import TextField from "@material-ui/core/TextField";
 import { Button } from "@material-ui/core";
 import PublishIcon from "@material-ui/icons/Publish";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 // Axios
 import axios from "../../shared/APIServer";
+
+// Form Validator
+import { useForm } from "./useForm";
 
 // Styles
 const useStyles = makeStyles({
@@ -32,97 +34,113 @@ const useStyles = makeStyles({
   },
 });
 
-function Edit(p) {
-  const pId = p.match.params.id;
+function Edit({
+  match: {
+    params: { id: pId },
+  },
+}) {
+  async function edit() {
+    setOnRequest(true);
 
-  const [data, setData] = useState({
-    title: "",
-    keywords: "",
-    description: "",
-  });
+    // handle axios
+    // BUG WHAT IF TITLE WAS CHANGED
+    await axios
+      .patch(`/information/${pId}/title/${values.title}`, values)
+      .then((res) => {
+        if (res.status == 201) {
+          successEdit();
+        } else {
+          failedEdit("server");
+        }
+      })
+      .catch((err) => {
+        console.log(err.data);
+        failedEdit("client");
+      });
+  }
 
-  const [errs, setErrs] = useState({
-    title: false,
-    keywords: false,
-    description: false,
-  });
+  // Success and failure on edit
+  function successEdit() {
+    alert("YEAH successfully edited");
+    setOnRequest(false);
+  }
 
-  // Information API data
-  const { information } = useContext(InformationContext);
+  function failedEdit(blame) {
+    alert("OHHH something went wrong in " + blame + ". Try again");
+    setOnRequest(false);
+  }
+
+  function validate(fieldData, setErrors) {
+    let tempErrors = { ...errors };
+
+    if ("title" in fieldData) {
+      tempErrors["title"] =
+        fieldData.title === "" || fieldData.title === null
+          ? "Title is required"
+          : "";
+    }
+
+    if ("description" in fieldData) {
+      tempErrors["description"] =
+        fieldData.description === "" || fieldData.description === null
+          ? "Description is required"
+          : "";
+    }
+
+    if ("keywords" in fieldData) {
+      tempErrors["keywords"] =
+        fieldData.keywords === "" || fieldData.keywords === null
+          ? "Keyword(s) is/are required"
+          : "";
+    }
+
+    setErrors({ ...tempErrors });
+  }
+
+  // No need to use information context, because I think this is an isolated case
+  // MAYBE USE CONTEXT WHEN WE WILL SEND A MESSAGE TO ANOTHER PAGE AFTER EDITING
   useEffect(() => {
-    // find the information
-    const curr = information.find((info) => {
-      return info._id === pId;
-    });
-    // convert arr to str
-    const strKeywords = setData({
-      title: curr.title,
-      keywords: curr.keywords.join(", "),
-      description: curr.description,
-    });
+    async function fetchData(path) {
+      await axios
+        .get(path)
+        .then((res) => {
+          if (res.status == 201) {
+            setValues({
+              title: res.data.title,
+              keywords: res.data.keywords.join(","),
+              description: res.data.description,
+            });
+          } else {
+            alert("Invalid URL");
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          alert("Error");
+        });
+    }
+
+    // Fetch the information using id paramater
+    const path = `/information/${pId}`;
+    fetchData(path);
   }, []);
+
+  // Validator
+  const initial = { title: "", keywords: "", description: "" };
+  const { values, setValues, errors, handleInput, handleFormSubmit } = useForm(
+    { ...initial },
+    { ...initial },
+    validate,
+    edit
+  );
+
+  // add cleaning
+
+  // a little helper state to handle disabling the button
+  const [isOnRequest, setOnRequest] = useState(false);
 
   // Styles
   const classes = useStyles();
-
-  // Event Listeners
-  function onTextFieldChange({ target: { value, name } }) {
-    setData((prev) => {
-      return {
-        ...prev,
-        [name]: value,
-      };
-    });
-
-    // so that on every time the use enters a value, it will reset the error
-    // OMG I implemented the better validation, a combination
-    setErrs((prev) => {
-      return {
-        ...prev,
-        [name]: value === "" && !prev[name],
-      };
-    });
-  }
-
-  function handleErrors() {
-    for (const [k, v] of Object.entries(data)) {
-      setErrs((prev) => {
-        return {
-          ...prev,
-          [k]: v === "",
-        };
-      });
-    }
-  }
-
-  function clearFields() {
-    setData({
-      title: "",
-      keywords: "",
-      description: "",
-    });
-  }
-
-  function onPublish(e) {
-    // check for empty fields
-    handleErrors();
-
-    if (data.title === "" || data.keywords === "" || data.description === "") {
-      alert("error");
-      console.log("err");
-    } else {
-      axios
-        .patch(`/information/${pId}/title/${data.title}`, data)
-        .then((response) => {
-          clearFields();
-          alert("update success");
-        })
-        .catch((err) => {
-          console.log(err.response);
-          alert("update failure");
-        });
-    }
-  }
 
   return (
     <Box component="div">
@@ -142,34 +160,34 @@ function Edit(p) {
 
         <Box mt={4} className={classes.formRoot}>
           <TextField
-            value={data.title}
+            value={values.title}
             name="title"
-            onChange={onTextFieldChange}
+            onChange={handleInput}
             className={classes.input}
             label="Title"
             required
             fullWidth
-            error={errs.title}
+            error={Boolean(errors.title)}
           />
 
           <TextField
-            value={data.keywords}
+            value={values.keywords}
             name="keywords"
-            onChange={onTextFieldChange}
+            onChange={handleInput}
             className={classes.inputWithCaption}
             label="Keywords"
             required
             fullWidth
-            error={errs.keywords}
+            error={Boolean(errors.keywords)}
           />
           <Typography variant="subtitle2" color="textSecondary">
             Seperate each keywords with a coma (,)
           </Typography>
 
           <TextField
-            value={data.description}
+            value={values.description}
             name="description"
-            onChange={onTextFieldChange}
+            onChange={handleInput}
             className={classes.input}
             label="Description"
             variant="outlined"
@@ -177,15 +195,22 @@ function Edit(p) {
             rows={5}
             required
             fullWidth
-            error={errs.description}
+            error={Boolean(errors.description)}
           />
 
           <Button
             color="primary"
             size="medium"
             variant="contained"
-            onClick={onPublish}
-            endIcon={<PublishIcon />}
+            onClick={handleFormSubmit}
+            endIcon={
+              isOnRequest ? (
+                <CircularProgress color="primary" size={25} thickness={4} />
+              ) : (
+                <PublishIcon />
+              )
+            }
+            disabled={isOnRequest}
           >
             Save
           </Button>
