@@ -11,6 +11,8 @@ import Box from "@material-ui/core/Box";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import Alert from "@material-ui/lab/Alert";
+import Collapse from "@material-ui/core/Collapse";
 
 // Axios
 import axios from "../../shared/APIServer";
@@ -34,6 +36,12 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function Share() {
+  // For post status and status message
+  const [postStatus, setPostStatus] = useState({
+    isFinished: false,
+    severity: "",
+    message: "",
+  });
   // passing this as parameter to useForm, where the validation will be handled
   async function share() {
     setOnRequest(true);
@@ -43,7 +51,7 @@ function Share() {
       .post("/information/", values)
       .then((response) => {
         if (response.status === 201) {
-          successShare();
+          successShare(values.title);
         } else {
           failedShare("server");
         }
@@ -55,14 +63,22 @@ function Share() {
   }
 
   // Functions for success and fail
-  function successShare() {
-    alert("YEAH successfully shared. Thank you");
+  function successShare(title) {
     setOnRequest(false);
+    setPostStatus({
+      isFinished: true,
+      severity: "success",
+      message: "Successfully shared information about " + title,
+    });
   }
 
   function failedShare(blame) {
-    alert("OOH something went wrong in " + blame + " . Try again.");
     setOnRequest(false);
+    setPostStatus({
+      isFinished: true,
+      severity: "error",
+      message: `Something went wrong in sharing information. Please try again.`,
+    });
   }
 
   // The function that will AGGRESIVELY check field validattion
@@ -127,7 +143,13 @@ function Share() {
           <ShareIcon color="primary" />
         </Fab>
 
-        <Box mt={4} className={classes.formRoot}>
+        <Box mt={4}>
+          <Collapse in={postStatus.isFinished}>
+            <Alert severity={postStatus.severity}>{postStatus.message}</Alert>
+          </Collapse>
+        </Box>
+
+        <Box mt={2} className={classes.formRoot}>
           <TextField
             value={values.title}
             name="title"
