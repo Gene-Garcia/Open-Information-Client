@@ -10,11 +10,15 @@ import PublishIcon from "@material-ui/icons/Publish";
 import Box from "@material-ui/core/Box";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 // Axios
 import axios from "../../shared/APIServer";
 
-const useStyles = makeStyles({
+// Form validator
+import { useForm } from "./useForm";
+
+const useStyles = makeStyles((theme) => ({
   formRoot: {
     width: "70%",
   },
@@ -27,75 +31,85 @@ const useStyles = makeStyles({
     display: "block",
     marginTop: 20,
   },
-});
+}));
 
 function Share() {
-  const [data, setData] = useState({
-    title: "",
-    keywords: "",
-    description: "",
-  });
+  // passing this as parameter to useForm, where the validation will be handled
+  async function share() {
+    setOnRequest(true);
 
-  const [errs, setErrs] = useState({
-    title: false,
-    keywords: false,
-    description: false,
-  });
+    // handle axios
+    await axios
+      .post("/information/", values)
+      .then((response) => {
+        if (response.status === 201) {
+          successShare();
+        } else {
+          failedShare("server");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        failedShare("client");
+      });
+  }
 
+  // Functions for success and fail
+  function successShare() {
+    alert("YEAH successfully shared. Thank you");
+    setOnRequest(false);
+  }
+
+  function failedShare(blame) {
+    alert("OOH something went wrong in " + blame + " . Try again.");
+    setOnRequest(false);
+  }
+
+  // The function that will AGGRESIVELY check field validattion
+  // the parameter will accept an object so that we can check individuall or by group
+  const validate = (fieldData, setErrors) => {
+    // Funny enough, we are able to access 'errors' even though it is declared later
+    // maybe because it is a state
+    let tempErrs = { ...errors };
+
+    if ("title" in fieldData) {
+      tempErrs["title"] =
+        fieldData["title"] === "" || fieldData["title"] === null
+          ? "Title is required"
+          : "";
+    }
+
+    if ("description" in fieldData) {
+      tempErrs["description"] =
+        fieldData["description"] === "" || fieldData["description"] === null
+          ? "Description is required"
+          : "";
+    }
+
+    if ("keywords" in fieldData) {
+      tempErrs["keywords"] =
+        fieldData["keywords"] === "" || fieldData["keywords"] === null
+          ? "Keyword(s) is/are required"
+          : "";
+    }
+
+    // update state errors
+    setErrors({ ...tempErrs });
+  };
+
+  const initial = { title: "", keywords: "", description: "" };
+  const { values, errors, handleInput, handleFormSubmit } = useForm(
+    { ...initial },
+    { ...initial },
+    validate,
+    share
+  );
+
+  // state variable to identify if there is a current request to axios
+  const [isOnRequest, setOnRequest] = useState(false);
+
+  // styles
   const classes = useStyles();
-
-  function onTextFieldChange({ target: { value, name } }) {
-    setData((prev) => {
-      return {
-        ...prev,
-        [name]: value,
-      };
-    });
-
-    // so that on every time the use enters a value, it will reset the error
-    // OMG I implemented the better validation, a combination
-    setErrs((prev) => {
-      return {
-        ...prev,
-        [name]: value === "" && !prev[name],
-      };
-    });
-  }
-
-  function clearFields() {
-    setData({
-      title: "",
-      keywords: "",
-      description: "",
-    });
-  }
-
-  function handleErrors() {
-    for (const [k, v] of Object.entries(data)) {
-      setErrs((prev) => {
-        return {
-          ...prev,
-          [k]: v === "",
-        };
-      });
-    }
-  }
-
-  function onPublish(e) {
-    // check for empty fields
-    handleErrors();
-
-    if (data.title === "" || data.keywords === "" || data.description === "") {
-      alert("error");
-      console.log("err");
-    } else {
-      console.log("succ");
-      axios.post("/information/", data).then((response) => {
-        clearFields();
-        alert("post success");
-      });
-    }
-  }
 
   return (
     <Box component="div">
@@ -115,34 +129,34 @@ function Share() {
 
         <Box mt={4} className={classes.formRoot}>
           <TextField
-            value={data.title}
+            value={values.title}
             name="title"
-            onChange={onTextFieldChange}
+            onChange={handleInput}
             className={classes.input}
             label="Title"
             required
             fullWidth
-            error={errs.title}
+            error={Boolean(errors.title)}
           />
 
           <TextField
-            value={data.keywords}
+            value={values.keywords}
             name="keywords"
-            onChange={onTextFieldChange}
+            onChange={handleInput}
             className={classes.inputWithCaption}
             label="Keywords"
             required
             fullWidth
-            error={errs.keywords}
+            error={Boolean(errors.keywords)}
           />
           <Typography variant="subtitle2" color="textSecondary">
             Seperate each keywords with a coma (,)
           </Typography>
 
           <TextField
-            value={data.description}
+            value={values.description}
             name="description"
-            onChange={onTextFieldChange}
+            onChange={handleInput}
             className={classes.input}
             label="Description"
             variant="outlined"
@@ -150,15 +164,22 @@ function Share() {
             rows={5}
             required
             fullWidth
-            error={errs.description}
+            error={Boolean(errors.description)}
           />
 
           <Button
             color="primary"
             size="medium"
             variant="contained"
-            onClick={onPublish}
-            endIcon={<PublishIcon />}
+            onClick={handleFormSubmit}
+            endIcon={
+              isOnRequest ? (
+                <CircularProgress color="primary" size={25} thickness={4} />
+              ) : (
+                <PublishIcon />
+              )
+            }
+            disabled={isOnRequest}
           >
             Publish
           </Button>
