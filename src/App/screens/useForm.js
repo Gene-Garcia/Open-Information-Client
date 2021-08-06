@@ -77,11 +77,6 @@ function useForm(initialValues, initialErros, validate, submitFunction) {
   };
 }
 
-function useButton() {
-  // this is just a small helper function
-  // which converts a button to loading
-}
-
 // const validateTemplate = (fieldData, setErrors) => {
 //   let tempErrs = { ...errors };
 

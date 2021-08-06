@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from "react";
+import React, { useEffect, useContext, useState, useRef } from "react";
 
 // My components
 import SearchNavigation from "./SearchNavigation";
@@ -22,6 +22,7 @@ import Alert from "@material-ui/lab/Alert";
 import AlertTitle from "@material-ui/lab/AlertTitle";
 import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
+import Button from "@material-ui/core/Button";
 
 // API
 import axios from "../../shared/APIServer";
@@ -92,6 +93,27 @@ function Read() {
     fetchInformation();
   }, []);
 
+  // State for simple pagination through 'load more'
+  const [shownCards, setShownCards] = useState(3);
+  const [showOption, setShowOption] = useState("LOAD MORE");
+
+  async function handleShowMoreLess() {
+    if (shownCards < information.length - 1) {
+      setShownCards((prev) => prev + 2);
+    }
+
+    // if (shownCards >= information.length - 1) {
+    //   setShowOption("SHOW LESS");
+    // }
+
+    // if (showOption === "SHOW LESS") {
+    //   setShownCards((prev) => prev / 2);
+    //   setShowOption("LOAD MORE");
+    // }
+  }
+
+  const loadMoreRef = useRef(null);
+
   // stylings
   const classes = useStyles();
 
@@ -138,7 +160,7 @@ function Read() {
             <Grid item xs={12} sm={7} md={8} lg={9} xl={9}>
               <Box>
                 <Box>
-                  {information.map((item) => (
+                  {information.slice(0, shownCards).map((item) => (
                     <InformationSkeleton
                       classes={classes}
                       key={item._id}
@@ -150,10 +172,27 @@ function Read() {
                   ))}
                 </Box>
 
-                <Box className={classes.loadingRoot}>
+                <Box className={classes.loadingRoot} mb={loading ? 4 : 0}>
                   <Fade in={loading} unmountOnExit>
                     <CircularProgress color="primary" />
                   </Fade>
+                </Box>
+
+                <Box>
+                  <Button
+                    ref={loadMoreRef}
+                    color="primary"
+                    size="small"
+                    style={{ width: "100%" }}
+                    onClick={async () => {
+                      await handleShowMoreLess();
+                      loadMoreRef.current.scrollIntoView({
+                        behavior: "smooth",
+                      });
+                    }}
+                  >
+                    {showOption}
+                  </Button>
                 </Box>
               </Box>
             </Grid>
